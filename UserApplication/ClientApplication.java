@@ -1,20 +1,33 @@
 package UserApplication;
 
 import CausalMulticast.*;
+import CausalMulticast.Interfaces.ICausalMulticast;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+/**
+    A classe ClientApplication representa a aplicação do cliente que utiliza o multicast causal.
+    A aplicação do cliente interage com o middleware por meio dos métodos disponíveis.
+*/
 public class ClientApplication implements ICausalMulticast {
     private CausalMulticast middleware;
     public String address = "225.0.0.1";
     public Integer port = 15050;
     
+    /**
+     * Construtor da classe ClientApplication.
+     * @throws IOException
+     */
     public ClientApplication() throws IOException {
         middleware = new CausalMulticast(this.address, this.port, this);
     }
 
+    /**
+     * Inicializa aplicação do cliente.
+     * @throws IOException
+     */
     public void start() throws IOException {
         middleware.start();
 
@@ -26,6 +39,11 @@ public class ClientApplication implements ICausalMulticast {
         }
     }
 
+    /**
+     * Verifica o tipo de comando inserido pelo usuário e toma as ações apropriadas com base no comando.
+     * @param input String
+     * @throws IOException
+     */
     private void handleInput(String input) throws IOException {
 
         boolean isSend = input.equals("enviar");
@@ -45,6 +63,10 @@ public class ClientApplication implements ICausalMulticast {
             middleware.mcsend(input.substring(1), this);
     }
 
+    /**
+     * Implementa o método deliver da classe ICausalMulticast.
+     * @param msg String
+     */
     @Override
     public void deliver(String msg) {
         System.out.println("[MESSAGE_RECEIVED] " + msg);
