@@ -7,13 +7,13 @@ import java.net.DatagramSocket;
 import java.net.SocketException;
 
 public class CausalMulticastReceiver extends Thread {
-    private ICausalMulticastReceiver client;
+    private ICausalMulticastReceiver receiver;
     private DatagramSocket socket;
     private final byte[] buffer = new byte[65535];
 
-    public CausalMulticastReceiver(ICausalMulticastReceiver client, Integer port) throws SocketException {
-        this.client = client;
-        this.socket = new DatagramSocket(port);
+    public CausalMulticastReceiver(ICausalMulticastReceiver receiver, Integer port) throws SocketException {
+        this.receiver = receiver;
+        this.socket = new DatagramSocket(port + 1);
     }
 
     @Override
@@ -23,7 +23,7 @@ public class CausalMulticastReceiver extends Thread {
                 DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
 
                 socket.receive(packet);
-                client.messageReceived(CausalMulticastMessage.deserialize(packet.getData()), packet.getAddress());
+                receiver.messageReceived(CausalMulticastMessage.deserialize(packet.getData()), packet.getAddress());
             }
         }
         catch (Exception e) {

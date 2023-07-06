@@ -67,7 +67,7 @@ public class CausalMulticast implements ICausalMulticastReceiver {
             }
 
             for(InetAddress address : addressToSend) {
-                DatagramPacket packet = new DatagramPacket(messageBytes, messageBytes.length, address, this.port);
+                DatagramPacket packet = new DatagramPacket(messageBytes, messageBytes.length, address, this.port + 1);
                 datagramSocket.send(packet);
             }
 
@@ -84,7 +84,7 @@ public class CausalMulticast implements ICausalMulticastReceiver {
             while(notSentMessages.size() > 0) {
                 CausalMulticastNotSentMessage message = notSentMessages.get(0);
                 byte[] messageBytes = message.getSerializedMessage();
-                DatagramPacket packet = new DatagramPacket(messageBytes, messageBytes.length, message.getDestination(), this.port);
+                DatagramPacket packet = new DatagramPacket(messageBytes, messageBytes.length, message.getDestination(), this.port + 1);
 
                 System.out.println(String.format("[MIDDLEWARE] Sent delayed message to %s", message.getDestination().getHostAddress()));
 
@@ -102,7 +102,9 @@ public class CausalMulticast implements ICausalMulticastReceiver {
             }
 
             System.out.println("[DEBUG] Middleware received message: "+message.toString()+"\t Current local clock: "+Arrays.toString(clockArray));
-
+            System.out.println(message);
+            System.out.println(messageCanBeDelivered(message));
+            System.out.println("aaaaaaaaaaaaaaaaaaa");
             if(!messageCanBeDelivered(message)) {
                 delayedMessages.add(new CausalMulticastDelayedMessage(message, sender));
                 System.out.printf("[%s][DELAYED] Message %s was delayed. Current delayed: %s\n", sender.getHostAddress(), message.getContent(), Arrays.toString(delayedMessages.toArray()));
@@ -158,7 +160,6 @@ public class CausalMulticast implements ICausalMulticastReceiver {
         System.out.println("[MIDDLEWARE] Initializing clock array");
 
         List<InetAddress> allIps = discovery.getDiscoveredIpAddresses();
-
         this.clockArray = new int[allIps.size()];
         this.indexOfInstanceInClockArray = getIndexForAddress(currentAddress);
 

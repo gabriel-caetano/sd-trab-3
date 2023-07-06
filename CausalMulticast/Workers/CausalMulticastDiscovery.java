@@ -41,7 +41,6 @@ public class CausalMulticastDiscovery extends Thread {
                 DatagramPacket receivedMessage = new DatagramPacket(buf, buf.length);
                 multicastSocket.receive(receivedMessage);
                 String messageContent = new String(receivedMessage.getData(), 0, receivedMessage.getLength(), "UTF-8");
-
                 if(messageContent.equals(helloMessage)) {
                     synchronized (this) {
                         InetAddress clientAddress = receivedMessage.getAddress();
@@ -74,7 +73,6 @@ public class CausalMulticastDiscovery extends Thread {
 
     private void sendHelloMessage() throws IOException {
         DatagramPacket helloDatagramPacket = new DatagramPacket(helloMessage.getBytes("UTF-8"), helloMessage.length(), group, this.port);
-
         multicastSocket.send(helloDatagramPacket);
     }
 }
