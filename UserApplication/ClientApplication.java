@@ -27,10 +27,10 @@ public class ClientApplication implements ICausalMulticast {
                 middleware.sendAllNotSentMessages();
             }
             else if(line.length() == 0 || line.charAt(0) != '>') {
-                System.out.println("[WARN] Unrecognized command. Messages should start with '>'");
+                System.out.println("[WARN] Comando inválido. Mensagens devem iniciar com '>'");
             }
             else if(middleware.hasDelayedMessages()) {
-                System.out.println("[ERROR] Cannot send messages having delayed ones.");
+                System.out.println("[ERROR] Não é possível enviar mensagens enquanto estiver aguardando uma mensagem ser entregue.");
             }
             else {
                 middleware.mcsend(line.substring(1), this);
