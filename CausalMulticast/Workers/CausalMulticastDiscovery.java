@@ -22,7 +22,7 @@ public class CausalMulticastDiscovery extends Thread {
     private Integer port;
 
     /**
-     * Construtor da classe CausalMulticastDiscovery
+     * Construtor da classe CausalMulticastDiscovery.
      * @param ip String
      * @param port Integer
      * @throws IOException
@@ -35,7 +35,7 @@ public class CausalMulticastDiscovery extends Thread {
     }
 
     /**
-     * Retorna a lista de endereços IP dos clientes descobertos
+     * Retorna a lista de endereços IP dos clientes descobertos.
      * @return lstDiscoveredIpAddresses
      */
     public List<InetAddress> getDiscoveredIpAddresses() {
