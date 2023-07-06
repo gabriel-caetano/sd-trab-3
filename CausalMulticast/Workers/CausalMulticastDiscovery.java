@@ -15,11 +15,11 @@ import java.util.List;
 */
 
 public class CausalMulticastDiscovery extends Thread {
-    private static final String message = "PARTICIPAR";
+    private Integer port;
+    private final String JOIN_MESSAGE = "PARTICIPAR";
     private ArrayList<InetAddress> lstDiscoveredIpAddresses;
     private MulticastSocket multicastSocket;
     private InetAddress group;
-    private Integer port;
 
     /**
      * Construtor da classe CausalMulticastDiscovery
@@ -61,7 +61,7 @@ public class CausalMulticastDiscovery extends Thread {
                 multicastSocket.receive(receivedMessage);
                 String messageContent = new String(receivedMessage.getData(), 0, receivedMessage.getLength(), "UTF-8");
                 
-                if(messageContent.equals(message)) {
+                if(messageContent.equals(JOIN_MESSAGE)) {
                     synchronized (this) {
                         InetAddress clientAddress = receivedMessage.getAddress();
                         Boolean added = false;
@@ -96,6 +96,6 @@ public class CausalMulticastDiscovery extends Thread {
      * @throws IOException
      */
     private void sendMessage() throws IOException {
-        multicastSocket.send(new DatagramPacket(message.getBytes("UTF-8"), message.length(), group, this.port));
+        multicastSocket.send(new DatagramPacket(JOIN_MESSAGE.getBytes("UTF-8"), JOIN_MESSAGE.length(), group, this.port));
     }
 }
