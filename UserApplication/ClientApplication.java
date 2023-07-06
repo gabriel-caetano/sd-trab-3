@@ -20,22 +20,24 @@ public class ClientApplication implements ICausalMulticast {
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
-        while(true) {
-            String line = reader.readLine();
-
-            if(line.equals("send")) {
-                middleware.sendAllNotSentMessages();
-            }
-            else if(line.length() == 0 || line.charAt(0) != '>') {
-                System.out.println("[WARN] Comando inválido. Mensagens devem iniciar com '>'");
-            }
-            else if(middleware.hasDelayedMessages()) {
-                System.out.println("[ERROR] Não é possível enviar mensagens enquanto estiver aguardando uma mensagem ser entregue.");
-            }
-            else {
-                middleware.mcsend(line.substring(1), this);
-            }
+        while (true) {
+            String input = reader.readLine();
+            this.handleInput(input);
         }
+    }
+
+    private void handleInput(String input) throws IOException {
+        if (input.equals("enviar"))
+            middleware.sendAllNotSentMessages();
+
+        else if (input.length() == 0 || input.charAt(0) != '>')
+            System.out.println("[WARN] Comando inválido. Mensagens devem iniciar com '>'");
+
+        else if (middleware.hasDelayedMessages())
+            System.out.println("[ERROR] Não é possível enviar mensagens enquanto estiver aguardando uma mensagem ser entregue.");
+            
+        else
+            middleware.mcsend(input.substring(1), this);
     }
 
     @Override

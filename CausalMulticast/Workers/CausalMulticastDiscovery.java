@@ -87,7 +87,7 @@ public class CausalMulticastDiscovery extends Thread {
         catch (IOException e) {
             e.printStackTrace();
 
-            System.out.println("[DISCOVERY][ERROR] Exception em thread discovery");
+            System.out.println("[DISCOVERY][ERROR] Erro ao iniciar serviço discovery");
         }
     }
 
