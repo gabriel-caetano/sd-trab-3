@@ -7,58 +7,78 @@ import java.net.MulticastSocket;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+    A classe CausalMulticastDiscovery é responsável por descobrir e manter uma lista de endereços IP de clientes
+    que desejam participar de um serviço de multicast causal.
+    Ao ser executada em uma thread, a classe envia uma mensagem de descoberta para um grupo multicast e recebe
+    mensagens de resposta dos clientes que desejam participar do serviço.
+*/
+
 public class CausalMulticastDiscovery extends Thread {
-    private static final String helloMessage = "JOINING_GROUP";
-    private ArrayList<InetAddress> discoveredIpAddresses;
+    private static final String message = "PARTICIPAR";
+    private ArrayList<InetAddress> lstDiscoveredIpAddresses;
     private MulticastSocket multicastSocket;
     private InetAddress group;
     private Integer port;
 
-
+    /**
+     * Construtor da classe CausalMulticastDiscovery
+     * @param ip String
+     * @param port Integer
+     * @throws IOException
+     */
     public CausalMulticastDiscovery(String ip, Integer port) throws IOException {
+        this.lstDiscoveredIpAddresses = new ArrayList<>();
+        this.multicastSocket = new MulticastSocket(port);
+        this.group = InetAddress.getByName(ip);
         this.port = port;
-        multicastSocket = new MulticastSocket(port);
-        group = InetAddress.getByName(ip);
-
-        discoveredIpAddresses = new ArrayList<>();
     }
 
+    /**
+     * Retorna a lista de endereços IP dos clientes descobertos
+     * @return lstDiscoveredIpAddresses
+     */
     public List<InetAddress> getDiscoveredIpAddresses() {
-        return discoveredIpAddresses;
+        return lstDiscoveredIpAddresses;
     }
 
+    /**
+     * Sobrescreve o método run da classe Thread.
+     * O método executa a lógica de descoberta e atualização da lista de endereços IP dos clientes.
+     */
     @Override
     public void run() {
         byte[] buf = new byte[56];
 
         try {
-            System.out.println("[DISCOVERY] Service started");
+            System.out.println("[DISCOVERY] Serviço iniciado...");
             multicastSocket.joinGroup(group);
 
-            sendHelloMessage();
+            sendMessage();
 
             while(true) {
                 DatagramPacket receivedMessage = new DatagramPacket(buf, buf.length);
                 multicastSocket.receive(receivedMessage);
                 String messageContent = new String(receivedMessage.getData(), 0, receivedMessage.getLength(), "UTF-8");
-                if(messageContent.equals(helloMessage)) {
+                
+                if(messageContent.equals(message)) {
                     synchronized (this) {
                         InetAddress clientAddress = receivedMessage.getAddress();
                         Boolean added = false;
 
-                        for(InetAddress address : discoveredIpAddresses) {
+                        for(InetAddress address : lstDiscoveredIpAddresses) {
                             if(address.equals(clientAddress)) {
                                 added = true;
                             }
                         }
 
                         if(!added) {
-                            System.out.println(String.format("[DISCOVERY] Client %s connected", clientAddress.getHostAddress()));
+                            System.out.println(String.format("[DISCOVERY] Cliente %s conectado!", clientAddress.getHostAddress()));
 
-                            discoveredIpAddresses.add(clientAddress);
-                            discoveredIpAddresses.sort((a1, a2) -> a1.getHostAddress().compareTo(a2.getHostAddress()));
+                            lstDiscoveredIpAddresses.add(clientAddress);
+                            lstDiscoveredIpAddresses.sort((a1, a2) -> a1.getHostAddress().compareTo(a2.getHostAddress()));
 
-                            sendHelloMessage();
+                            sendMessage();
                         }
                     }
                 }
@@ -67,12 +87,15 @@ public class CausalMulticastDiscovery extends Thread {
         catch (IOException e) {
             e.printStackTrace();
 
-            System.out.println("[DISCOVERY][ERROR] Received exception on discovery thread");
+            System.out.println("[DISCOVERY][ERROR] Exception em thread discovery");
         }
     }
 
-    private void sendHelloMessage() throws IOException {
-        DatagramPacket helloDatagramPacket = new DatagramPacket(helloMessage.getBytes("UTF-8"), helloMessage.length(), group, this.port);
-        multicastSocket.send(helloDatagramPacket);
+    /**
+     * Envia uma mensagem para o grupo multicast.
+     * @throws IOException
+     */
+    private void sendMessage() throws IOException {
+        multicastSocket.send(new DatagramPacket(message.getBytes("UTF-8"), message.length(), group, this.port));
     }
 }
